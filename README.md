@@ -7,5 +7,5 @@ Example of graphql based blogging solution
 # install dependencies
 $ yarn install
 
-# serve with hot reload at localhost:3000
+# serve with hot reload at localhost:4000
 $ yarn dev
