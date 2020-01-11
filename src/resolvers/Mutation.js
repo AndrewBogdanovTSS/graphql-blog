@@ -13,6 +13,17 @@ export default {
     users.push(user)
     return user
   },
+  updateUser(parent, {id, data}, {db}) {
+    const user = db.users.find(user => user.id === id)
+    if (!user) throw new Error('No user found')
+    if (data.email) {
+      const emailTaken = db.users.some(user => user.email === data.email)
+      if (emailTaken) throw new Error('Email is already in use')
+      user.email = data.email
+    }
+    if(data.name) user.name = data.name
+    if(typeof data.age !== 'undefined') user.age = data.age
+  },
   deleteUser(parent, {id}, {db}) {
     let {users, posts, comments} = db
     const index = users.findIndex(user => user.id === id)
