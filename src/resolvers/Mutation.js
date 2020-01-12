@@ -21,7 +21,7 @@ export default {
       if (emailTaken) throw new Error('Email is already in use')
       user.email = data.email
     }
-    if(data.name) user.name = data.name
+    if(data.name === 'string') user.name = data.name
     if(typeof data.age !== 'undefined') user.age = data.age
   },
   deleteUser(parent, {id}, {db}) {
@@ -36,7 +36,7 @@ export default {
     comments = comments.filter(comment => comment.author !== id)
     return users.splice(index, 1)[0]
   },
-  createPost(parent, {data}, {db}) {
+  createPost(parent, {data}, {pubSub, db}) {
     let {users, posts} = db
     const {author} = data
     const isUser = users.some(user => user.id === author)
@@ -47,16 +47,33 @@ export default {
       ...data
     }
     posts.push(post)
+    if(data.published) pubSub.publish('post', {post: {mutation: 'created', data: post}})
     return post
   },
-  deletePost(parent, {id}, {db}) {
+  updatePost(parent, {id, data}, {db}) {
+    const {title, body, published} = data
+    const post = db.posts.find(post => post.id === id)
+    if (!post) throw new Error('No post found')
+    if(title === 'string') post.title = title
+    if(body === 'string') post.body = body
+    if(published === 'boolean') post.published = published
+  },
+  deletePost(parent, {id}, {pubSub, db}) {
     let {comments, posts} = db
     const index = posts.findIndex(post => post.id === id)
-    if (index === -1) throw new Error('No such post found')
+    const [post] = posts.splice(index, 1)
+    if (!post) throw new Error('No such post found')
     comments = comments.filter(({post}) => post !== id)
-    return posts.splice(index, 1)[0]
+    if(post.published) pubSub.publish('post', {post: {mutation: 'deleted', data: post}})
+    return post
   },
-  createComment(parent, {data}, {db}) {
+  updateComment(parent, {id, data}, {db}) {
+    const {text} = data
+    const comment = db.comments.find(comment => comment.id === id)
+    if (!comment) throw new Error('No comment found')
+    if(text === 'string') comment.text = text
+  },
+  createComment(parent, {data}, {pubSub, db}) {
     let {users, posts, comments} = db
     const {author, post} = data
     const isUser = users.some(({id}) => id === author)
@@ -68,6 +85,7 @@ export default {
       ...data
     }
     comments.push(comment)
+    pubSub.publish(`comment ${post}`, {comment})
     return comment
   },
   deleteComment(parent, {id}, {db}) {
