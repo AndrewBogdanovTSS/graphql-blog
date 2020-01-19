@@ -11,17 +11,43 @@ function create(parent, {data}, {pubSub, db}) {
         ...data
     }
     posts.push(post)
-    if(data.published) pubSub.publish('post', {post: {mutation: 'created', data: post}})
+    if (data.published) pubSub.publish('post', {post: {mutation: 'created', data: post}})
     return post
 }
 
-function update(parent, {id, data}, {db}) {
+function update(parent, {id, data}, {db, pubSub}) {
     const {title, body, published} = data
     const post = db.posts.find(post => post.id === id)
+    const originalPost = {...post}
     if (!post) throw new Error('No post found')
-    if(title === 'string') post.title = title
-    if(body === 'string') post.body = body
-    if(published === 'boolean') post.published = published
+    if (typeof title === 'string') post.title = title
+    if (typeof body === 'string') post.body = body
+    if (typeof published === 'boolean') {
+        post.published = published
+        if (originalPost.published && !post.published) {
+            pubSub.publish('post', {
+                post: {
+                    mutation: 'deleted',
+                    data: originalPost
+                }
+            })
+        } else if (!originalPost.published && post.published) {
+            pubSub.publish('post', {
+                post: {
+                    mutation: 'created',
+                    data: post
+                }
+            })
+        } else if (post.published) {
+            pubSub.publish('post', {
+                post: {
+                    mutation: 'updated',
+                    data: post
+                }
+            })
+        }
+    }
+    return post
 }
 
 function del(parent, {id}, {pubSub, db}) {
@@ -30,7 +56,7 @@ function del(parent, {id}, {pubSub, db}) {
     const [post] = posts.splice(index, 1)
     if (!post) throw new Error('No such post found')
     comments = comments.filter(({post}) => post !== id)
-    if(post.published) pubSub.publish('post', {post: {mutation: 'deleted', data: post}})
+    if (post.published) pubSub.publish('post', {post: {mutation: 'deleted', data: post}})
     return post
 }
 

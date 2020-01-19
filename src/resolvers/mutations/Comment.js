@@ -1,12 +1,5 @@
 import uuidv4 from 'uuid/v4'
 
-function update(parent, {id, data}, {db}) {
-    const {text} = data
-    const comment = db.comments.find(comment => comment.id === id)
-    if (!comment) throw new Error('No comment found')
-    if(text === 'string') comment.text = text
-}
-
 function create(parent, {data}, {pubSub, db}) {
     let {users, posts, comments} = db
     const {author, post} = data
@@ -19,15 +12,32 @@ function create(parent, {data}, {pubSub, db}) {
         ...data
     }
     comments.push(comment)
-    pubSub.publish(`comment ${post}`, {comment})
+    pubSub.publish(`comment ${post}`, {
+        comment: {mutation: 'created', data: comment}
+    })
     return comment
 }
 
-function del(parent, {id}, {db}) {
+function update(parent, {id, data}, {db, pubSub}) {
+    const {text} = data
+    const comment = db.comments.find(comment => comment.id === id)
+    if (!comment) throw new Error('No comment found')
+    if(typeof text === 'string') comment.text = text
+    pubSub.publish(`comment ${comment.post}`, {
+        comment: {mutation: 'updated', data: comment}
+    })
+    return comment
+}
+
+function del(parent, {id}, {db, pubSub}) {
     let {comments} = db
     const index = comments.findIndex(comment => comment.id === id)
-    if (index === -1) throw new Error('No such comment found')
-    return comments.splice(index, 1)[0]
+    const [deletedComment] = comments.splice(index, 1)
+    if (!deletedComment) throw new Error('No such comment found')
+    pubSub.publish(`comment ${deletedComment.post}`, {
+        comment: {mutation: 'deleted', data: deletedComment}
+    })
+    return deletedComment
 }
 
 export default {
