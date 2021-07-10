@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.js --ext js,graphql --exec babel-node"
+    "dev": "nodemon src/index.js --ext js,graphql --exec babel-node",
+    "ncu": "ncu"
   },
   "keywords": [],
   "author": "",
@@ -13,10 +14,11 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "graphql-yoga": "^1.18.3",
-    "uuid": "^3.3.3"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.12",
+    "npm-check-updates": "^11.8.2"
   }
 }

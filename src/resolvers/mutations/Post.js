@@ -1,4 +1,4 @@
-import uuidv4 from 'uuid/v4'
+import {v4} from 'uuid'
 
 function create(parent, {data}, {pubSub, db}) {
     let {users, posts} = db
@@ -6,7 +6,7 @@ function create(parent, {data}, {pubSub, db}) {
     const isUser = users.some(user => user.id === author)
     if (!isUser) throw new Error('User with such id doesn\'t exist')
     const post = {
-        id: uuidv4(),
+        id: v4(),
         comments: [],
         ...data
     }

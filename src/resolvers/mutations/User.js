@@ -1,4 +1,4 @@
-import uuidv4 from 'uuid/v4'
+import {v4} from 'uuid'
 
 function create(parent, {data}, {db}) {
     let {users} = db
@@ -6,7 +6,7 @@ function create(parent, {data}, {db}) {
     const emailTaken = users.some(user => user.email === email)
     if (emailTaken) throw new Error('Email already taken')
     const user = {
-        id: uuidv4(),
+        id: v4(),
         ...data
     }
     users.push(user)
