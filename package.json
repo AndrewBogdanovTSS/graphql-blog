@@ -19,7 +19,6 @@
     "@babel/core": "^7.14.6",
     "@babel/node": "^7.14.7",
     "@babel/preset-env": "^7.14.7",
-    "nodemon": "^2.0.12",
-    "npm-check-updates": "^11.8.2"
+    "nodemon": "^2.0.12"
   }
 }
