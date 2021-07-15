@@ -1,16 +1,6 @@
-import Post from './Post'
-import User from './User'
-import Comment from './Comment'
-
-import Mutation from './mutations'
-import Query from './queries'
-import Subscription from './subscriptions'
-
-export default {
-    Query,
-    Mutation,
-    Subscription,
-    Post,
-    User,
-    Comment
-}
+export {default as Post} from './Post'
+export {default as User} from './User'
+export {default as Comment} from './Comment'
+export {default as Mutation} from './mutations'
+export {default as Query} from './queries'
+export {default as Subscription} from './subscriptions'

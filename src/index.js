@@ -1,6 +1,6 @@
 import {GraphQLServer, PubSub} from 'graphql-yoga'
 import db from './db'
-import resolvers from './resolvers'
+import * as resolvers from './resolvers'
 
 const pubSub = new PubSub()
 
